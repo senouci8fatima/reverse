@@ -1,0 +1,30 @@
+name: run-toknorm
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make executable
+        run: chmod +x ./toknorm
+
+      - name: Print help (sanity)
+        run: ./toknorm -h || true
+
+      - name: Dump TARGET values
+        run: ./toknorm target --assets assets.bin | tee target_dump.txt
+
+      - name: Probe your manifesto and (maybe) decrypt
+        run: ./toknorm probe --file manifesto.txt --assets assets.bin | tee probe_out.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: toknorm-output
+          path: |
+            target_dump.txt
+            probe_out.txt
